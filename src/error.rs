@@ -1,5 +1,6 @@
 use std::io;
 use std::path::PathBuf;
+use std::process::ExitStatus;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum NpmrcPatchIssue {
@@ -39,6 +40,33 @@ pub enum ScruttError {
 
     #[error("cannot read text file {path}: {source}", path = .path.display())]
     ReadTextError { path: PathBuf, source: io::Error },
+
+    #[error("npm not found: {source}")]
+    MissingBinary {
+        program: &'static str,
+        source: io::Error,
+    },
+
+    #[error(
+        "failed to start {program} in {cwd}: {source}",
+        cwd = .cwd.display()
+    )]
+    InstallProcessSpawn {
+        program: &'static str,
+        cwd: PathBuf,
+        source: io::Error,
+    },
+
+    #[error(
+        "npm installation failed in {cwd}: {status}",
+        cwd = .cwd.display(),
+        status = render_exit_status(*status)
+    )]
+    InstallFailed {
+        program: &'static str,
+        cwd: PathBuf,
+        status: ExitStatus,
+    },
 
     #[error(
         "invalid .npmrc state {path}: {reason}",
@@ -88,6 +116,13 @@ impl From<serde_json::Error> for ScruttError {
     }
 }
 
+fn render_exit_status(status: ExitStatus) -> String {
+    match status.code() {
+        Some(code) => format!("exit code {code}"),
+        None => "terminated by signal".to_owned(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{NpmrcPatchIssue, ScruttError};
@@ -126,8 +161,35 @@ mod tests {
             reason: NpmrcPatchIssue::ConflictingDuplicateKeys,
         };
 
-        assert!(error
-            .to_string()
-            .contains("conflicting duplicate ignore-scripts entries"));
+        assert!(
+            error
+                .to_string()
+                .contains("conflicting duplicate ignore-scripts entries")
+        );
+    }
+
+    #[test]
+    fn renders_install_failed_with_exit_code() {
+        let error = ScruttError::InstallFailed {
+            program: "npm",
+            cwd: "tests/fixtures/valid".into(),
+            status: exit_status(23),
+        };
+
+        assert!(error.to_string().contains("exit code 23"));
+    }
+
+    #[cfg(unix)]
+    fn exit_status(code: i32) -> std::process::ExitStatus {
+        use std::os::unix::process::ExitStatusExt;
+
+        std::process::ExitStatus::from_raw(code << 8)
+    }
+
+    #[cfg(windows)]
+    fn exit_status(code: u32) -> std::process::ExitStatus {
+        use std::os::windows::process::ExitStatusExt;
+
+        std::process::ExitStatus::from_raw(code)
     }
 }

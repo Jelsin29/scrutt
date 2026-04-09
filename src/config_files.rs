@@ -145,7 +145,7 @@ mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     use super::{
-        ensure_npmrc_ignore_scripts, ensure_scrutt_toml, FileChange, SCRUTT_TOML_BASELINE,
+        FileChange, SCRUTT_TOML_BASELINE, ensure_npmrc_ignore_scripts, ensure_scrutt_toml,
     };
     use crate::error::{NpmrcPatchIssue, ScruttError};
 

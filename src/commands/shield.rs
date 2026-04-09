@@ -1,13 +1,13 @@
 use std::path::Path;
 
 use crate::config_files::{
-    ensure_npmrc_ignore_scripts, ensure_scrutt_toml, FileChange, ShieldOutcome,
+    FileChange, ShieldOutcome, ensure_npmrc_ignore_scripts, ensure_scrutt_toml,
 };
 use crate::error::ScruttError;
 use crate::pkg_json;
 
 pub fn run(path: &Path) -> Result<(), ScruttError> {
-    pkg_json::load(&path.join("package.json"))?;
+    pkg_json::load(&pkg_json::manifest_path(path))?;
 
     let outcome = ShieldOutcome {
         scrutt_toml: ensure_scrutt_toml(path)?,

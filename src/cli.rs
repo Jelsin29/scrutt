@@ -18,12 +18,14 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    Install { path: PathBuf },
     Shield { path: PathBuf },
 }
 
 impl Cli {
     pub fn run(self) -> Result<(), ScruttError> {
         match self.command {
+            Commands::Install { path } => commands::install::run(&path),
             Commands::Shield { path } => commands::shield::run(&path),
         }
     }
