@@ -41,6 +41,15 @@ pub enum ScruttError {
     #[error("cannot read text file {path}: {source}", path = .path.display())]
     ReadTextError { path: PathBuf, source: io::Error },
 
+    #[error("node_modules not found: {path}", path = .path.display())]
+    NodeModulesNotFound { path: PathBuf },
+
+    #[error("scan failed for {file}: {source}", file = .file.display())]
+    ScanFailed { file: PathBuf, source: io::Error },
+
+    #[error("audit reported {count} finding(s)")]
+    AuditFindings { count: usize },
+
     #[error("npm not found: {source}")]
     MissingBinary {
         program: &'static str,
@@ -161,11 +170,9 @@ mod tests {
             reason: NpmrcPatchIssue::ConflictingDuplicateKeys,
         };
 
-        assert!(
-            error
-                .to_string()
-                .contains("conflicting duplicate ignore-scripts entries")
-        );
+        assert!(error
+            .to_string()
+            .contains("conflicting duplicate ignore-scripts entries"));
     }
 
     #[test]
