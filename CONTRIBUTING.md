@@ -222,6 +222,14 @@ PRs should eventually be blocked on these checks:
 
 Not all automation is in place yet, but contributors should follow these rules now, not later.
 
+### Solo Maintainer Exception
+
+Right now, `scrutt` is still in its early bootstrap stage and has a single active maintainer.
+
+Because of that, the repository owner may bypass PR review requirements when merging their own pull requests into `main`.
+
+This is an operational exception for the current stage of the project, not the long-term default. Once the project has multiple active contributors or reviewers, owner bypass should be treated as an emergency path rather than the normal workflow.
+
 ---
 
 ## Code of Conduct
