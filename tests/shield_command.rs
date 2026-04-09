@@ -76,8 +76,10 @@ fn exits_non_zero_for_conflicting_npmrc_entries() {
     let output = run_shield(&temp_dir);
 
     assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr)
-        .contains("conflicting duplicate ignore-scripts entries"));
+    assert!(
+        String::from_utf8_lossy(&output.stderr)
+            .contains("conflicting duplicate ignore-scripts entries")
+    );
 }
 
 #[test]
