@@ -26,3 +26,15 @@ fn exits_non_zero_when_package_json_is_missing() {
     assert!(!output.status.success());
     assert!(String::from_utf8_lossy(&output.stderr).contains("missing package.json"));
 }
+
+#[test]
+fn exits_non_zero_when_package_json_is_invalid() {
+    let output = Command::new(env!("CARGO_BIN_EXE_scrutt"))
+        .arg("shield")
+        .arg("tests/fixtures/invalid")
+        .output()
+        .expect("binary executes");
+
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("invalid package.json"));
+}
