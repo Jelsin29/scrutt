@@ -1,0 +1,6 @@
+{
+  "name": "shield-baseline-fixture",
+  "dependencies": {
+    "react": "19.1.0"
+  }
+}
