@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::fs;
 use std::io::ErrorKind;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
 
@@ -23,6 +23,10 @@ impl PackageJson {
     pub fn dev_dependency_count(&self) -> usize {
         self.dev_dependencies.as_ref().map_or(0, BTreeMap::len)
     }
+}
+
+pub fn manifest_path(path: &Path) -> PathBuf {
+    path.join("package.json")
 }
 
 pub fn load(path: &Path) -> Result<PackageJson, ScruttError> {
