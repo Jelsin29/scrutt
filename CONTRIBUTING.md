@@ -21,7 +21,11 @@ This project is still early, so the workflow is intentionally strict. The idea i
 
 ## Issue-First Workflow
 
-**No PR without an issue. No exceptions.**
+**No PR without an issue.**
+
+The only exception is the initial bootstrap PR that establishes the repository foundation. That first PR may ship without a linked issue because it exists to create the project baseline itself.
+
+After the bootstrap PR is merged, the issue-first workflow is mandatory for every feature, fix, refactor, docs change, and project phase.
 
 Before writing code:
 
