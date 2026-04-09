@@ -6,13 +6,23 @@ pub enum ScruttError {
     #[error("missing package.json: {path}")]
     MissingFile { path: PathBuf },
 
-    #[error("cannot read manifest: {}", .path.as_deref().map_or_else(|| "<unknown>".into(), |path| path.display().to_string()))]
+    #[error(
+        "cannot read manifest {}: {source}",
+        .path
+            .as_deref()
+            .map_or_else(|| "<unknown>".into(), |path| path.display().to_string())
+    )]
     IoError {
         path: Option<PathBuf>,
         source: io::Error,
     },
 
-    #[error("invalid package.json: {}", .path.as_deref().map_or_else(|| "<unknown>".into(), |path| path.display().to_string()))]
+    #[error(
+        "invalid package.json {}: {source}",
+        .path
+            .as_deref()
+            .map_or_else(|| "<unknown>".into(), |path| path.display().to_string())
+    )]
     ParseError {
         path: Option<PathBuf>,
         source: serde_json::Error,
