@@ -18,6 +18,7 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    Audit { path: PathBuf },
     Install { path: PathBuf },
     Shield { path: PathBuf },
 }
@@ -25,6 +26,7 @@ enum Commands {
 impl Cli {
     pub fn run(self) -> Result<(), ScruttError> {
         match self.command {
+            Commands::Audit { path } => commands::audit::run(&path),
             Commands::Install { path } => commands::install::run(&path),
             Commands::Shield { path } => commands::shield::run(&path),
         }
