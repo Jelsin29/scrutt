@@ -1,6 +1,12 @@
 use std::io;
 use std::path::PathBuf;
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum NpmrcPatchIssue {
+    ConflictingDuplicateKeys,
+    NonUtf8Content,
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum ScruttError {
     #[error("missing package.json: {path}")]
@@ -27,6 +33,31 @@ pub enum ScruttError {
         path: Option<PathBuf>,
         source: serde_json::Error,
     },
+
+    #[error("cannot write file {path}: {source}", path = .path.display())]
+    WriteError { path: PathBuf, source: io::Error },
+
+    #[error("cannot read text file {path}: {source}", path = .path.display())]
+    ReadTextError { path: PathBuf, source: io::Error },
+
+    #[error(
+        "invalid .npmrc state {path}: {reason}",
+        path = .path.display(),
+        reason = .reason.as_message()
+    )]
+    InvalidNpmrcState {
+        path: PathBuf,
+        reason: NpmrcPatchIssue,
+    },
+}
+
+impl NpmrcPatchIssue {
+    pub fn as_message(self) -> &'static str {
+        match self {
+            Self::ConflictingDuplicateKeys => "conflicting duplicate ignore-scripts entries",
+            Self::NonUtf8Content => ".npmrc must be valid UTF-8 text",
+        }
+    }
 }
 
 impl ScruttError {
@@ -59,7 +90,7 @@ impl From<serde_json::Error> for ScruttError {
 
 #[cfg(test)]
 mod tests {
-    use super::ScruttError;
+    use super::{NpmrcPatchIssue, ScruttError};
 
     #[test]
     fn converts_io_error_with_generic_context() {
@@ -86,5 +117,17 @@ mod tests {
             }
             other => panic!("expected ParseError, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn renders_invalid_npmrc_state_with_concrete_reason() {
+        let error = ScruttError::InvalidNpmrcState {
+            path: "tests/fixtures/shield/npmrc_conflicting/.npmrc".into(),
+            reason: NpmrcPatchIssue::ConflictingDuplicateKeys,
+        };
+
+        assert!(error
+            .to_string()
+            .contains("conflicting duplicate ignore-scripts entries"));
     }
 }
